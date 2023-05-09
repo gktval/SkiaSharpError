@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SkiaSharpAccessViolation.PopupCoordSys"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+    
+    <Grid x:Name="mainGrid" Padding="20,10,20,10" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" Style="{StaticResource outerStack}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="8*" />
+            <RowDefinition Height="80" />
+        </Grid.RowDefinitions>
+
+        <Label Text="Define Coordinate System" Grid.Row="0" Style="{StaticResource Title}"></Label>
+
+        <StackLayout Orientation="Vertical" Grid.Row="1" VerticalOptions="StartAndExpand">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <SearchBar x:Name="searchBar" Placeholder="Name or EPSG code" TextChanged="SearchBar_TextChanged" HorizontalOptions="FillAndExpand">
+                    <SearchBar.Behaviors>
+                        <toolkit:EventToCommandBehavior
+                        EventName="TextChanged"
+                        Command="{Binding NoResultCommand}"
+                        CommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"/>
+                        <toolkit:UserStoppedTypingBehavior
+                        Command="{Binding PerformSearch}"
+                        CommandParameter="{Binding Text, Source={x:Reference searchBar}}"
+                        StoppedTypingTimeThreshold="500"
+                        MinimumLengthThreshold="3"
+                        ShouldDismissKeyboardAutomatically="false"
+                        />
+                    </SearchBar.Behaviors>
+                </SearchBar>
+                <CollectionView x:Name="ObjectResultView" Grid.Row="2" Margin="4"
+                                WidthRequest="{Binding SearchViewWidth}"
+                                HeightRequest="{Binding SearchViewHeight}"
+                                IsVisible="{Binding SearchVisible}"
+                                ItemsLayout="VerticalList" SelectionMode="Single"
+                                SelectionChanged="ObjectResultView_SelectionChanged" >
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding .}" FontSize="16" Padding ="0,4" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </Grid>
+
+            <Line WidthRequest="300" Margin="0,10,0,10" BackgroundColor="Black"></Line>
+
+            <StackLayout Orientation="Vertical" Spacing="4">
+                <Frame CornerRadius="4" Padding="4" IsVisible="{Binding HistoryVisible}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Label Text="Previous Used" Grid.Row="0"></Label>
+                        <ListView x:Name="HistoryResultView" Grid.Row="1" ItemSelected="HistoryResultView_ItemSelected" 
+                                  SelectionMode="Single" MaximumHeightRequest="100" Margin="4" ></ListView>
+                        <!--<CollectionView x:Name="HistoryResultView" Grid.Row="1" MaximumHeightRequest="100" Margin="4"
+                                        ItemsLayout="VerticalList" SelectionMode="Single" 
+                                        SelectionChanged="HistoryResultView_SelectionChanged" >
+                        </CollectionView>-->
+                    </Grid>
+                </Frame>
+
+                <Label Text="EPSG code"></Label>
+                <Entry x:Name="entryCode" Placeholder="EPSG" Text="{Binding EPSG}" IsReadOnly="True"></Entry>
+                <Label Text="Name"></Label>
+                <Entry x:Name="entryName" Placeholder="Name" Text="{Binding Name}"></Entry>
+            </StackLayout>
+        </StackLayout>
+
+        <StackLayout  Grid.Row="2" Orientation="Horizontal" Spacing="10" VerticalOptions="End" HorizontalOptions="End" Padding="10" >
+            <Label x:Name="errorMessage" VerticalOptions="Center"></Label>
+            <Button Text="Cancel" x:Name="cancelBtn" WidthRequest="120" Command="{Binding CancelCommand}"/>
+            <Button Text="OK" x:Name="okBtn"  WidthRequest="120" Command="{Binding OKCommand}"/>
+        </StackLayout>
+    </Grid>
+</toolkit:Popup>
